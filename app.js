@@ -29,10 +29,16 @@ app.get("/new", (req, res, next) => {
   connection.query(`INSERT INTO TABLE1(FIRSTNAME, LASTNAME, PHONE, ADDRESS1, ADDRESS2, EMAIL) VALUES ("${req.query.firstname}", "${req.query.lastname}", 
     "${req.query.phone}", "${req.query.address1}", "${req.query.address2}", "${req.query.email}" )`, 
    function (err, results) {
-    if (err) throw err;
-    console.log(results);
-    res.send("User Created!");
-    next()
+    try {
+      if (results.affectedRows > 0){
+        res.json({message: "New User Inserted!"})
+      } else {
+        res.json({message: "Something went wrong."})
+      }
+    } catch (error) {
+      res.json({message: error})
+    }
+
   });
 });
 
@@ -40,10 +46,15 @@ app.get("/new", (req, res, next) => {
 app.get("/search", (req, res, next) => {
   connection.query(`SELECT * FROM TABLE1 WHERE ${req.query.condition} = "${req.query.value}"`,
    function (err, results) {
-    if (err) throw err;
-    console.log(results);
-    res.send(results);
-    next()
+    try {
+      if (results.length > 0) {
+        res.json(results);
+      } else {
+        res.json({ message: "No users found." });
+      }
+    } catch (err) {
+      res.json({ message: err });
+    }
   });
 });
 
@@ -51,10 +62,15 @@ app.get("/search", (req, res, next) => {
 app.get("/update", (req, res, next) => {
   connection.query(`UPDATE TABLE1 SET ${req.query.change} = "${req.query.value}" WHERE ${req.query.change} = "${req.query.condition}"`,
    function (err, results) {
-    if (err) throw err;
-    console.log(results);
-    res.send("User Updated");
-    next()
+    try {
+      if (results.affectedRows > 0){
+        res.json({message: "User has been updated!"})
+      } else {
+        res.json({message: "Something went wrong."})
+      }
+    } catch (error) {
+      res.json({message: error})
+    }
   });
 });
 
@@ -63,14 +79,18 @@ app.get("/delete", (req, res, next) => {
   connection.query('DELETE FROM TABLE1 WHERE FIRSTNAME = ?',
   [req.query.firstname],
    function (err, results) {
-    if (err) throw err;
-    console.log(results);
-    res.send("User Deleted!");
-    next()
+    try {
+      if (results.affectedRows > 0){
+        res.json({message: "User has been deleted."})
+      } else {
+        res.json({message: "Something went wrong."})
+      }
+    } catch (error) {
+      res.json({message: error})
+    }
   });
 });
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
-
